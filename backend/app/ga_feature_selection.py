@@ -22,7 +22,7 @@ class GeneticFeatureSelector:
         """Initialize random population of binary individuals"""
         return [[random.randint(0, 1) for _ in range(n_features)] for _ in range(self.population_size)]
     
-    def _advanced_correlation_fitness(self, individual, X, y):
+    def _fitness(self, individual, X, y):
         """
         Advanced correlation-based fitness
         - Balances relevance and redundancy
@@ -83,7 +83,7 @@ class GeneticFeatureSelector:
         """Evaluate fitness for entire population"""
         fitness_scores = []
         for individual in population:
-            fitness = self._advanced_correlation_fitness(individual, X, y)
+            fitness = self._fitness(individual, X, y)
             fitness_scores.append(fitness)
         return fitness_scores
     
