@@ -1,70 +1,58 @@
 from flask import jsonify
-import traceback
 import logging
 
 logger = logging.getLogger(__name__)
 
 class APIError(Exception):
-    """Custom API Exception"""
-    def __init__(self, message, status_code=400, error_code=None):
+    """Custom API exception"""
+    def __init__(self, message, status_code=400):
         super().__init__()
         self.message = message
         self.status_code = status_code
-        self.error_code = error_code
-
-    def to_dict(self):
-        return {
-            'success': False,
-            'error': {
-                'code': self.error_code or self.status_code,
-                'message': self.message
-            }
-        }
 
 def register_error_handlers(app):
+    """Register custom error handlers for the application"""
+    
     @app.errorhandler(APIError)
     def handle_api_error(error):
-        response = jsonify(error.to_dict())
-        response.status_code = error.status_code
-        return response
-
-    @app.errorhandler(404)
-    def not_found(error):
+        """Handle custom API errors"""
+        logger.warning(f"API Error: {error.message}")
         return jsonify({
             'success': False,
-            'error': {
-                'code': 404,
-                'message': 'Resource not found'
-            }
-        }), 404
-
-    @app.errorhandler(405)
-    def method_not_allowed(error):
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 405,
-                'message': 'Method not allowed'
-            }
-        }), 405
-
-    @app.errorhandler(500)
-    def internal_server_error(error):
-        logger.error(f"Internal Server Error: {traceback.format_exc()}")
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 500,
-                'message': 'Internal server error'
-            }
-        }), 500
-
+            'error': error.message
+        }), error.status_code
+    
     @app.errorhandler(413)
-    def request_entity_too_large(error):
+    def handle_file_too_large(error):
+        """Handle file too large errors"""
+        logger.warning("File upload too large")
         return jsonify({
             'success': False,
-            'error': {
-                'code': 413,
-                'message': 'File too large'
-            }
+            'error': 'File size exceeds maximum allowed limit'
         }), 413
+    
+    @app.errorhandler(404)
+    def handle_not_found(error):
+        """Handle 404 errors"""
+        return jsonify({
+            'success': False,
+            'error': 'Resource not found'
+        }), 404
+    
+    @app.errorhandler(500)
+    def handle_internal_error(error):
+        """Handle 500 errors"""
+        logger.error(f"Internal server error: {str(error)}")
+        return jsonify({
+            'success': False,
+            'error': 'Internal server error'
+        }), 500
+    
+    @app.errorhandler(Exception)
+    def handle_generic_error(error):
+        """Handle any unhandled exceptions"""
+        logger.error(f"Unhandled exception: {str(error)}")
+        return jsonify({
+            'success': False,
+            'error': 'An unexpected error occurred'
+        }), 500
