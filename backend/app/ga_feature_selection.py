@@ -21,16 +21,20 @@ class GeneticFeatureSelector:
         random.seed(random_state)
     
     def _initialize_population(self, n_features):
-        """Initialize population with bias toward smaller feature sets"""
+        """Initialize population"""
         population = []
         for _ in range(self.population_size):
-            # Bias toward selecting fewer features (10-30% of total)
-            prob_select = random.uniform(0.1, 0.3)
-            individual = [1 if random.random() < prob_select else 0 for _ in range(n_features)]
+            individual = [random.randint(0, 1) for _ in range(n_features)]
             
-            # Ensure at least one feature is selected
-            if sum(individual) == 0:
-                individual[random.randint(0, n_features-1)] = 1
+            # Ensure at least two features are selected (or all if fewer than 2 exist)
+            min_required = min(2, n_features)
+            current_selected = sum(individual)
+            if current_selected < min_required:
+                zeros = [i for i, v in enumerate(individual) if v == 0]
+                to_add = min_required - current_selected
+                chosen = random.sample(zeros, min(to_add, len(zeros)))
+                for idx in chosen:
+                    individual[idx] = 1
                 
             population.append(individual)
         return population
@@ -41,7 +45,7 @@ class GeneticFeatureSelector:
         return any(pattern in str(feature_name).lower() for pattern in exclude_patterns)
     
     def _fitness(self, individual, X, y):
-        """Enhanced fitness function with feature exclusion"""
+    
         if sum(individual) == 0:
             return 0.0
         
@@ -57,32 +61,59 @@ class GeneticFeatureSelector:
         return calculate_fitness(valid_features, X, y)
     
     def _mutate(self, individual):
-        """Enhanced mutation that considers feature importance"""
+    
         mutated = individual[:]
         for i in range(len(mutated)):
             if random.random() < self.mutation_prob:
-                # Slightly lower probability of adding features
-                if mutated[i] == 1 and random.random() < 0.6:  # 60% chance to remove
+                # 60% chance to remove
+                if mutated[i] == 1 and random.random() < 0.6:  
                     mutated[i] = 0
-                else:  # 40% chance to add
+                else: 
                     mutated[i] = 1
+        # Ensure at least two features are selected (or all if fewer than 2 exist)
+        min_required = min(2, len(mutated))
+        current_selected = sum(mutated)
+        if current_selected < min_required:
+            zeros = [i for i, v in enumerate(mutated) if v == 0]
+            to_add = min_required - current_selected
+            chosen = random.sample(zeros, min(to_add, len(zeros)))
+            for idx in chosen:
+                mutated[idx] = 1
         return mutated
     
-    # ... keep the rest of the methods the same ...
+    
     def _evaluate_population(self, population, X, y):
         return [self._fitness(ind, X, y) for ind in population]
     
-    def _tournament_selection(self, population, fitness_scores):
+    def _roulette_wheel_selection(self, population, fitness_scores):
+        """Roulette wheel selection """
         selected = []
+        fitness = np.array(fitness_scores, dtype=float)
+
+        # Shift fitness if negative values present
+        min_f = fitness.min()
+        if min_f < 0:
+            fitness = fitness - min_f + 1e-6
+
+        total_fitness = fitness.sum()
+
+        # If all fitnesses are zero (or nearly zero), fallback to random uniform selection
+        if total_fitness == 0 or np.isclose(total_fitness, 0.0):
+            for _ in range(len(population)):
+                selected.append(random.choice(population)[:])
+            return selected
+
+        probs = fitness / total_fitness
+
         for _ in range(len(population)):
-            tournament_indices = random.sample(range(len(population)), self.tournament_size)
-            tournament_fitness = [fitness_scores[i] for i in tournament_indices]
-            winner_index = tournament_indices[np.argmax(tournament_fitness)]
-            selected.append(population[winner_index][:])
+            idx = np.random.choice(len(population), p=probs)
+            selected.append(population[idx][:])
+
         return selected
     
     def _crossover(self, parent1, parent2):
         if random.random() < self.crossover_prob and len(parent1) > 1:
+            # Two-point crossover: select two points, swap the middle segment between parents
             point1 = random.randint(1, len(parent1) - 2)
             point2 = random.randint(point1, len(parent1) - 1)
             child1 = parent1[:point1] + parent2[point1:point2] + parent1[point2:]
@@ -124,7 +155,7 @@ class GeneticFeatureSelector:
             
             self.fitness_history.append(best_fitness)
             
-            selected = self._tournament_selection(population, fitness_scores)
+            selected = self._roulette_wheel_selection(population, fitness_scores)
             population = self._create_offspring(selected)
             
             if generation % 10 == 0:
