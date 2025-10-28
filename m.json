@@ -1,1 +1,114 @@
-{"success": true, "message": "Feature selection completed successfully using Both (GA and Traditional)", "method_used": "Both (GA and Traditional)", "dataset_info": {"samples": 569, "features": 31, "target_column": "diagnosis", "stats": {"samples": 569, "features": 31, "target_distribution": {"1": 357, "0": 212}, "missing_values": 0, "feature_types": {"numerical": 31, "categorical": 0}, "memory_usage_mb": 0.13, "avg_feature_correlation": 0.4565, "max_feature_correlation": 0.7936}}, "results": {"ga_results": {"method": "Genetic Algorithm", "selected_features": ["radius_worst"], "num_features": 1, "fitness_score": 0.7732279721434258, "feature_reduction": "96.8%", "total_original_features": 31, "execution_time": 2.18}, "traditional_results": {"method": "Traditional (CORRELATION)", "selected_features": ["concave points_worst"], "num_features": 1, "fitness_score": 0.7903402106896559, "feature_reduction": "96.8%", "total_original_features": 31, "feature_metrics": {"relevance": 0.7935660171412687, "redundancy": 0.0, "feature_penalty": 0.0032258064516129032, "individual_correlations": {"concave points_worst": 0.7935660171412687}, "redundancy_matrix": {}, "num_features": 1, "total_features": 31}, "parameters_used": {"n_features": 3, "random_state": 42, "method": "correlation"}, "execution_time": 0.03, "dataset_stats": {"samples": 569, "features": 31, "target_distribution": {"1": 357, "0": 212}, "missing_values": 0, "feature_types": {"numerical": 31, "categorical": 0}, "memory_usage_mb": 0.13, "avg_feature_correlation": 0.4565, "max_feature_correlation": 0.7936}}, "comparison": {"fitness_comparison": {"ga": 0.7732279721434258, "traditional": 0.7903402106896559, "winner": "Traditional", "fitness_difference": -0.01711223854623012}, "feature_count_comparison": {"ga": 1, "traditional": 1, "difference": 0, "reduction_ga": "96.8%", "reduction_traditional": "96.8%"}, "performance_comparison": {"execution_time_ga": 2.18, "execution_time_traditional": 0.03, "time_ratio": 0.013761467889908256}, "feature_analysis": {"common_features": [], "unique_to_ga": ["radius_worst"], "unique_to_traditional": ["concave points_worst"], "overlap_percentage": 0.0}, "recommendation": "Similar fitness - Traditional recommended for speed"}}}
+{
+  "success": true,
+  "message": "Feature selection completed successfully using Both (GA and Traditional)",
+  "method_used": "Both (GA and Traditional)",
+  "dataset_info": {
+    "samples": 569,
+    "features": 31,
+    "target_column": "diagnosis",
+    "stats": {
+      "samples": 569,
+      "features": 31,
+      "target_distribution": { "1": 357, "0": 212 },
+      "missing_values": 0,
+      "feature_types": { "numerical": 31, "categorical": 0 },
+      "memory_usage_mb": 0.13,
+      "avg_feature_correlation": 0.4565,
+      "max_feature_correlation": 0.7936
+    }
+  },
+  "results": {
+    "ga_results": {
+      "method": "Genetic Algorithm",
+      "selected_features": [
+        "radius_mean",
+        "area_mean",
+        "radius_se",
+        "concave points_se",
+        "symmetry_se",
+        "radius_worst",
+        "texture_worst",
+        "smoothness_worst",
+        "concave points_worst",
+        "symmetry_worst"
+      ],
+      "num_features": 10,
+      "fitness_score": 0.12704457259976534,
+      "feature_reduction": "67.7%",
+      "total_original_features": 31,
+      "execution_time": 3.45
+    },
+    "traditional_results": {
+      "method": "Traditional (CORRELATION)",
+      "selected_features": ["concave points_worst"],
+      "num_features": 1,
+      "fitness_score": 0.7903402106896559,
+      "feature_reduction": "96.8%",
+      "total_original_features": 31,
+      "feature_metrics": {
+        "relevance": 0.7935660171412687,
+        "redundancy": 0.0,
+        "feature_penalty": 0.0032258064516129032,
+        "individual_correlations": {
+          "concave points_worst": 0.7935660171412687
+        },
+        "redundancy_matrix": {},
+        "num_features": 1,
+        "total_features": 31
+      },
+      "parameters_used": {
+        "n_features": 3,
+        "random_state": 42,
+        "method": "correlation"
+      },
+      "execution_time": 0.01,
+      "dataset_stats": {
+        "samples": 569,
+        "features": 31,
+        "target_distribution": { "1": 357, "0": 212 },
+        "missing_values": 0,
+        "feature_types": { "numerical": 31, "categorical": 0 },
+        "memory_usage_mb": 0.13,
+        "avg_feature_correlation": 0.4565,
+        "max_feature_correlation": 0.7936
+      }
+    },
+    "comparison": {
+      "fitness_comparison": {
+        "ga": 0.12704457259976534,
+        "traditional": 0.7903402106896559,
+        "winner": "Traditional",
+        "fitness_difference": -0.6632956380898906
+      },
+      "feature_count_comparison": {
+        "ga": 10,
+        "traditional": 1,
+        "difference": 9,
+        "reduction_ga": "67.7%",
+        "reduction_traditional": "96.8%"
+      },
+      "performance_comparison": {
+        "execution_time_ga": 3.45,
+        "execution_time_traditional": 0.01,
+        "time_ratio": 0.002898550724637681
+      },
+      "feature_analysis": {
+        "common_features": ["concave points_worst"],
+        "unique_to_ga": [
+          "radius_worst",
+          "smoothness_worst",
+          "concave points_se",
+          "texture_worst",
+          "radius_se",
+          "symmetry_se",
+          "symmetry_worst",
+          "area_mean",
+          "radius_mean"
+        ],
+        "unique_to_traditional": [],
+        "overlap_percentage": 10.0
+      },
+      "recommendation": "Traditional method recommended - better fitness and likely faster"
+    }
+  }
+}
