@@ -3,6 +3,7 @@ import pandas as pd
 import logging
 import random
 from app.utils.fitness import calculate_fitness
+from app.utils.results_formatter import format_selection_results  # ADD THIS IMPORT
 
 logger = logging.getLogger(__name__)
 
@@ -45,7 +46,6 @@ class GeneticFeatureSelector:
         return any(pattern in str(feature_name).lower() for pattern in exclude_patterns)
     
     def _fitness(self, individual, X, y):
-    
         if sum(individual) == 0:
             return 0.0
         
@@ -61,7 +61,6 @@ class GeneticFeatureSelector:
         return calculate_fitness(valid_features, X, y)
     
     def _mutate(self, individual):
-    
         mutated = individual[:]
         for i in range(len(mutated)):
             if random.random() < self.mutation_prob:
@@ -80,7 +79,6 @@ class GeneticFeatureSelector:
             for idx in chosen:
                 mutated[idx] = 1
         return mutated
-    
     
     def _evaluate_population(self, population, X, y):
         return [self._fitness(ind, X, y) for ind in population]
@@ -173,20 +171,22 @@ class GeneticFeatureSelector:
             # Filter out irrelevant features
             selected_features = [f for f in selected_features if not self._should_exclude_feature(f)]
         
-        # Calculate final fitness
-        final_fitness = calculate_fitness(selected_features, X, y)
-        
-        # Prepare results
-        results = {
-            'method': 'Genetic Algorithm',
-            'selected_features': selected_features,
-            'num_features': len(selected_features),
-            'fitness_score': float(final_fitness),
-            'feature_reduction': f"{((1 - len(selected_features) / n_features) * 100):.1f}%",
-            'total_original_features': n_features
-        }
+        # USE THE NEW FORMATTER INSTEAD OF MANUAL RESULT BUILDING
+        results = format_selection_results(
+            method='Genetic Algorithm',
+            selected_features=selected_features,
+            X=X,
+            y=y,
+            additional_params={
+                'population_size': self.population_size,
+                'generations': self.generations,
+                'crossover_prob': self.crossover_prob,
+                'mutation_prob': self.mutation_prob,
+                'random_state': self.random_state
+            }
+        )
         
         logger.info(f"GA Completed! Selected {len(selected_features)} features")
-        logger.info(f"   Fitness: {final_fitness:.4f}")
+        # Remove fitness logging since it's not in the results anymore
         
         return results

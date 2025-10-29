@@ -35,18 +35,21 @@ class FeatureSelectionAPI(Resource):
         parser = reqparse.RequestParser()
         # Required parameters
         parser.add_argument('target_column', type=str, required=True, location='form')
-        parser.add_argument('method', type=str, default='ga', choices=['ga', 'traditional'], location='form')
+        parser.add_argument('method', type=str, default='ga', 
+                          choices=['ga', 'traditional'], location='form')
         
         # GA-specific parameters
         parser.add_argument('population_size', type=int, default=30, location='form')
         parser.add_argument('generations', type=int, default=50, location='form')
         parser.add_argument('crossover_prob', type=float, default=0.8, location='form')
         parser.add_argument('mutation_prob', type=float, default=0.1, location='form')
-        parser.add_argument('tournament_size', type=int, default=3, location='form')
         
         # Traditional method parameters
         parser.add_argument('n_features', type=int, default=None, location='form')
         parser.add_argument('random_state', type=int, default=42, location='form')
+        parser.add_argument('traditional_method', type=str, default='rfe', 
+                          choices=['rfe', 'correlation', 'variance', 'kbest'], location='form')
+        parser.add_argument('variance_threshold', type=float, default=0.01, location='form')
         
         # Additional options
         parser.add_argument('run_both', type=bool, default=False, location='form')
@@ -57,8 +60,6 @@ class FeatureSelectionAPI(Resource):
             return {'success': False, 'error': 'No file provided'}, 400
         
         file = request.files['file']
-        
-        # Store file path for cleanup
         file_path = None
         
         try:
@@ -73,7 +74,7 @@ class FeatureSelectionAPI(Resource):
             # 3. Validate dataset content
             df = validate_dataset_content(file_path, file_extension, args['target_column'])
             
-            # 4. Process dataset using enhanced processor
+            # 4. Process dataset
             X, y = process_uploaded_file(file_path, file_extension, args['target_column'])
             
             # 5. Get dataset statistics
@@ -81,7 +82,6 @@ class FeatureSelectionAPI(Resource):
             
             # 6. Run feature selection based on method
             if args['run_both']:
-                # Run both methods and compare
                 results = self._run_both_methods(X, y, args)
                 method_name = "Both (GA and Traditional)"
             elif args['method'] == 'ga':
@@ -89,9 +89,9 @@ class FeatureSelectionAPI(Resource):
                 method_name = "Genetic Algorithm"
             else:
                 results = self._run_traditional_method(X, y, args)
-                method_name = "Traditional (RFE)"
+                method_name = f"Traditional ({args['traditional_method'].upper()})"
             
-            # 7. Return success response with enhanced information
+            # 7. Return success response
             response_data = {
                 'success': True,
                 'message': f"Feature selection completed successfully using {method_name}",
@@ -108,12 +108,9 @@ class FeatureSelectionAPI(Resource):
             return ensure_serializable(response_data), 200
             
         except APIError as e:
-            # Clean up file if there was an error
             self._cleanup_file(file_path)
             return {'success': False, 'error': str(e)}, 400
-            
         except Exception as e:
-            # Clean up file if there was an error
             self._cleanup_file(file_path)
             logger.error(f"Feature selection failed: {str(e)}", exc_info=True)
             return ensure_serializable({
@@ -128,26 +125,24 @@ class FeatureSelectionAPI(Resource):
             'generations': args['generations'],
             'crossover_prob': args['crossover_prob'],
             'mutation_prob': args['mutation_prob'],
-            'tournament_size': args['tournament_size'],
             'random_state': args['random_state']
         }
-        
         return run_genetic_algorithm(X, y, ga_params)
 
     def _run_traditional_method(self, X, y, args):
-        """Run Traditional feature selection"""
+        """Run Traditional feature selection with method selection"""
         traditional_params = {
             'n_features': args['n_features'],
-            'random_state': args['random_state']
+            'random_state': args['random_state'],
+            'method': args['traditional_method'],
+            'variance_threshold': args['variance_threshold']
         }
-        
         return run_traditional_method(X, y, traditional_params)
 
     def _run_both_methods(self, X, y, args):
         """Run both methods and return comparison"""
         ga_results = self._run_ga_method(X, y, args)
         traditional_results = self._run_traditional_method(X, y, args)
-        
         comparison = compare_methods_results(ga_results, traditional_results)
         
         return {
@@ -175,6 +170,18 @@ class FeatureSelectionComparisonAPI(Resource):
                           choices=['ga', 'traditional'], location='form')
         parser.add_argument('random_state', type=int, default=42, location='form')
         
+        # Add traditional method parameters for consistency
+        parser.add_argument('traditional_method', type=str, default='rfe', 
+                          choices=['rfe', 'correlation', 'variance', 'kbest'], location='form')
+        parser.add_argument('n_features', type=int, default=None, location='form')
+        parser.add_argument('variance_threshold', type=float, default=0.01, location='form')
+        
+        # Add GA parameters for consistency
+        parser.add_argument('population_size', type=int, default=30, location='form')
+        parser.add_argument('generations', type=int, default=50, location='form')
+        parser.add_argument('crossover_prob', type=float, default=0.8, location='form')
+        parser.add_argument('mutation_prob', type=float, default=0.1, location='form')
+        
         args = parser.parse_args()
         
         if 'file' not in request.files:
@@ -194,13 +201,26 @@ class FeatureSelectionComparisonAPI(Resource):
             X, y = process_uploaded_file(file_path, file_extension, args['target_column'])
             dataset_stats = get_dataset_stats(X, y)
             
-            # Run selected methods
+            # Run selected methods with full parameters
             results = {}
             for method in args['methods']:
                 if method == 'ga':
-                    results['ga'] = run_genetic_algorithm(X, y, {'random_state': args['random_state']})
+                    ga_params = {
+                        'population_size': args['population_size'],
+                        'generations': args['generations'],
+                        'crossover_prob': args['crossover_prob'],
+                        'mutation_prob': args['mutation_prob'],
+                        'random_state': args['random_state']
+                    }
+                    results['ga'] = run_genetic_algorithm(X, y, ga_params)
                 else:
-                    results['traditional'] = run_traditional_method(X, y, {'random_state': args['random_state']})
+                    traditional_params = {
+                        'n_features': args['n_features'],
+                        'random_state': args['random_state'],
+                        'method': args['traditional_method'],
+                        'variance_threshold': args['variance_threshold']
+                    }
+                    results['traditional'] = run_traditional_method(X, y, traditional_params)
             
             # Add comparison if both methods were run
             comparison = None
@@ -222,6 +242,9 @@ class FeatureSelectionComparisonAPI(Resource):
             
             return ensure_serializable(response_data), 200
             
+        except APIError as e:
+            self._cleanup_file(file_path)
+            return {'success': False, 'error': str(e)}, 400
         except Exception as e:
             self._cleanup_file(file_path)
             logger.error(f"Comparison failed: {str(e)}", exc_info=True)
@@ -235,5 +258,6 @@ class FeatureSelectionComparisonAPI(Resource):
         if file_path and os.path.exists(file_path):
             try:
                 os.remove(file_path)
-            except:
-                pass
+                logger.info(f"Cleaned up file: {file_path}")
+            except Exception as e:
+                logger.warning(f"Failed to clean up file {file_path}: {e}")

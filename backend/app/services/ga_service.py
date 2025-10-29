@@ -1,7 +1,7 @@
 import time
 import logging
 from app.ga_feature_selection import GeneticFeatureSelector
-from app.utils.results_formatter import format_selection_results
+from app.utils.data_processor import get_dataset_stats
 
 logger = logging.getLogger(__name__)
 
@@ -23,14 +23,16 @@ def run_genetic_algorithm(X, y, ga_params=None):
     
     try:
         selector = GeneticFeatureSelector(**default_params)
-        results = selector.run(X, y)
+        results = selector.run(X, y)  # This should already use the new formatter
         
-        execution_time = time.time() - start_time
-        results['execution_time'] = round(execution_time, 2)
+        results['execution_time'] = round(time.time() - start_time, 2)
+        results['dataset_stats'] = get_dataset_stats(X, y)
         
+        # Updated logging
         logger.info(f"GA Completed in {results['execution_time']}s")
         logger.info(f"   Selected {results['num_features']} features")
-        logger.info(f"   Fitness Score: {results['fitness_score']:.4f}")
+        if 'feature_quality' in results:
+            logger.info(f"   Feature Diversity Score: {results['feature_quality']['feature_diversity_score']:.4f}")
         
         return results
         
