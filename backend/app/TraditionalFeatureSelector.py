@@ -1,19 +1,19 @@
 import numpy as np
 import pandas as pd
 import logging
-from sklearn.feature_selection import RFE
-from sklearn.linear_model import LogisticRegression
+from sklearn.feature_selection import RFE, VarianceThreshold, SelectKBest, f_classif
 from sklearn.ensemble import RandomForestClassifier
-from app.utils.fitness import calculate_fitness
 from app.utils.results_formatter import format_selection_results
 
 logger = logging.getLogger(__name__)
 
 class TraditionalFeatureSelector:
-    def __init__(self, n_features=None, random_state=42, method='rfe'):
+    def __init__(self, n_features=None, random_state=42, method='rfe', 
+                 variance_threshold=0.01):
         self.n_features = n_features
         self.random_state = random_state
         self.method = method
+        self.variance_threshold = variance_threshold
         np.random.seed(random_state)
     
     def _remove_redundant_features(self, X, y, selected_features, max_correlation=0.8):
@@ -46,11 +46,9 @@ class TraditionalFeatureSelector:
         """Select features based on correlation with target"""
         correlations = {}
         for feature in X.columns:
-            # Exclude ID column
-            if feature != 'id':  
-                corr = abs(X[feature].corr(y))
-                if not np.isnan(corr):
-                    correlations[feature] = corr
+            corr = abs(X[feature].corr(y))
+            if not np.isnan(corr):
+                correlations[feature] = corr
         
         # Sort by correlation and select top n
         sorted_features = sorted(correlations.items(), key=lambda x: x[1], reverse=True)
@@ -59,9 +57,46 @@ class TraditionalFeatureSelector:
         # Remove redundant features
         return self._remove_redundant_features(X, y, selected)
     
+    def _select_by_variance(self, X, y, n_features):
+        """Select features based on variance threshold"""
+        try:
+            # First, remove low variance features
+            selector = VarianceThreshold(threshold=self.variance_threshold)
+            selector.fit_transform(X)  # Fit and transform, but we don't need the result
+            selected_features = X.columns[selector.get_support()].tolist()
+            
+            logger.info(f"Variance threshold selected {len(selected_features)} features")
+            
+            # If we have more features than needed, use correlation to select top n
+            if len(selected_features) > n_features:
+                selected_features = self._select_by_correlation(X[selected_features], y, n_features)
+            elif len(selected_features) == 0:
+                # Fallback if no features pass variance threshold
+                logger.warning("No features passed variance threshold, using correlation method")
+                selected_features = self._select_by_correlation(X, y, n_features)
+            
+            return selected_features
+            
+        except Exception as e:
+            logger.error(f"Variance selection failed: {e}, using correlation fallback")
+            return self._select_by_correlation(X, y, n_features)
+    
+    def _select_by_kbest(self, X, y, n_features):
+        """Select features using SelectKBest"""
+        try:
+            selector = SelectKBest(score_func=f_classif, k=n_features)
+            selector.fit_transform(X, y)  # Fit and transform, but we don't need the result
+            selected_features = X.columns[selector.get_support()].tolist()
+            
+            return selected_features
+            
+        except Exception as e:
+            logger.error(f"SelectKBest failed: {e}, using correlation fallback")
+            return self._select_by_correlation(X, y, n_features)
+    
     def run(self, X, y):
-        """Run traditional feature selection"""
-        logger.info("Starting Traditional Feature Selection...")
+        """Run traditional feature selection with multiple methods"""
+        logger.info(f"Starting Traditional Feature Selection with method: {self.method}")
         
         n_features = X.shape[1]
         
@@ -71,10 +106,16 @@ class TraditionalFeatureSelector:
         
         try:
             if self.method == 'correlation':
-                # Use correlation-based selection
                 selected_features = self._select_by_correlation(X, y, self.n_features)
-            else:
-                # Use Recursive Feature Elimination with better estimator
+                
+            elif self.method == 'variance':
+                selected_features = self._select_by_variance(X, y, self.n_features)
+                
+            elif self.method == 'kbest':
+                selected_features = self._select_by_kbest(X, y, self.n_features)
+                
+            else:  # RFE (default)
+                # Use Recursive Feature Elimination
                 estimator = RandomForestClassifier(
                     n_estimators=100,
                     random_state=self.random_state
@@ -87,12 +128,6 @@ class TraditionalFeatureSelector:
                 
                 rfe.fit(X, y)
                 selected_features = X.columns[rfe.support_].tolist()
-                
-                # If RFE selects poor features, fall back to correlation
-                fitness = calculate_fitness(selected_features, X, y)
-                if fitness < 0.1:  # If fitness is too low
-                    logger.info("RFE selected poor features, using correlation fallback")
-                    selected_features = self._select_by_correlation(X, y, self.n_features)
             
             # Format results
             results = format_selection_results(
@@ -103,12 +138,13 @@ class TraditionalFeatureSelector:
                 additional_params={
                     'n_features': self.n_features,
                     'random_state': self.random_state,
-                    'method': self.method
+                    'method': self.method,
+                    'variance_threshold': self.variance_threshold if self.method == 'variance' else None,
                 }
             )
             
             logger.info(f"Traditional Selection Completed! Selected {len(selected_features)} features")
-            logger.info(f"   Fitness: {results['fitness_score']:.4f}")
+            logger.info(f"   Method: {self.method}")
             
             return results
             
