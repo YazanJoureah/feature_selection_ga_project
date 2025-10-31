@@ -41,7 +41,6 @@ def validate_dataset_content(file_path, file_extension, target_column):
             available_columns = list(df.columns)
             raise APIError(f"Target column '{target_column}' not found. Available columns: {available_columns}")
         
-        # Return only the DataFrame, no second value
         return df
         
     except Exception as e:

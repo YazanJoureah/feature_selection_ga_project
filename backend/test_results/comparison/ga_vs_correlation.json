@@ -1,0 +1,185 @@
+{
+    "success": true,
+    "message": "Feature selection completed successfully using Comparison (ga, traditional)",
+    "method_used": "Comparison (ga, traditional)",
+    "dataset_info": {
+        "samples": 569,
+        "features": 31,
+        "target_column": "diagnosis",
+        "stats": {
+            "samples": 569,
+            "features": 31,
+            "target_distribution": {
+                "1": 357,
+                "0": 212
+            },
+            "missing_values": 0,
+            "feature_types": {
+                "numerical": 31,
+                "categorical": 0
+            },
+            "memory_usage_mb": 0.13,
+            "avg_feature_correlation": 0.4565,
+            "max_feature_correlation": 0.7936
+        }
+    },
+    "results": {
+        "success": true,
+        "message": "Comparison completed for methods: ga, traditional",
+        "dataset_info": {
+            "samples": 569,
+            "features": 31,
+            "target_column": "diagnosis",
+            "stats": {
+                "samples": 569,
+                "features": 31,
+                "target_distribution": {
+                    "1": 357,
+                    "0": 212
+                },
+                "missing_values": 0,
+                "feature_types": {
+                    "numerical": 31,
+                    "categorical": 0
+                },
+                "memory_usage_mb": 0.13,
+                "avg_feature_correlation": 0.4565,
+                "max_feature_correlation": 0.7936
+            }
+        },
+        "results": {
+            "ga": {
+                "method": "Genetic Algorithm",
+                "selected_features": [
+                    "texture_mean",
+                    "perimeter_mean",
+                    "smoothness_mean",
+                    "concave points_mean",
+                    "texture_se",
+                    "area_se",
+                    "fractal_dimension_worst"
+                ],
+                "num_features": 7,
+                "feature_reduction": "77.4%",
+                "total_original_features": 31,
+                "feature_quality": {
+                    "redundancy_rate": 0.28457056577840534,
+                    "representation_entropy": 0.29193817822105755,
+                    "feature_diversity_score": 0.20886116567237428
+                },
+                "parameters_used": {
+                    "population_size": 50,
+                    "generations": 50,
+                    "crossover_prob": 0.8,
+                    "mutation_prob": 0.1,
+                    "random_state": 42
+                },
+                "execution_time": 8.94,
+                "dataset_stats": {
+                    "samples": 569,
+                    "features": 31,
+                    "target_distribution": {
+                        "1": 357,
+                        "0": 212
+                    },
+                    "missing_values": 0,
+                    "feature_types": {
+                        "numerical": 31,
+                        "categorical": 0
+                    },
+                    "memory_usage_mb": 0.13,
+                    "avg_feature_correlation": 0.4565,
+                    "max_feature_correlation": 0.7936
+                }
+            },
+            "traditional": {
+                "method": "Traditional (CORRELATION)",
+                "selected_features": [
+                    "concave points_worst"
+                ],
+                "num_features": 1,
+                "feature_reduction": "96.8%",
+                "total_original_features": 31,
+                "feature_quality": {
+                    "redundancy_rate": 0.0,
+                    "representation_entropy": 0.0,
+                    "feature_diversity_score": 0.0
+                },
+                "parameters_used": {
+                    "n_features": 10,
+                    "random_state": 42,
+                    "method": "correlation",
+                    "variance_threshold": null
+                },
+                "execution_time": 0.02,
+                "dataset_stats": {
+                    "samples": 569,
+                    "features": 31,
+                    "target_distribution": {
+                        "1": 357,
+                        "0": 212
+                    },
+                    "missing_values": 0,
+                    "feature_types": {
+                        "numerical": 31,
+                        "categorical": 0
+                    },
+                    "memory_usage_mb": 0.13,
+                    "avg_feature_correlation": 0.4565,
+                    "max_feature_correlation": 0.7936
+                }
+            }
+        },
+        "comparison": {
+            "feature_quality_comparison": {
+                "redundancy_rate": {
+                    "ga": 0.28457056577840534,
+                    "traditional": 0.0,
+                    "winner": "Traditional",
+                    "improvement": -0.28457056577840534
+                },
+                "representation_entropy": {
+                    "ga": 0.29193817822105755,
+                    "traditional": 0.0,
+                    "winner": "GA",
+                    "improvement": 0.29193817822105755
+                },
+                "feature_diversity_score": {
+                    "ga": 0.20886116567237428,
+                    "traditional": 0.0,
+                    "winner": "GA",
+                    "improvement": 0.20886116567237428
+                }
+            },
+            "feature_count_comparison": {
+                "ga": 7,
+                "traditional": 1,
+                "difference": 6,
+                "reduction_ga": "77.4%",
+                "reduction_traditional": "96.8%"
+            },
+            "performance_comparison": {
+                "execution_time_ga": 8.94,
+                "execution_time_traditional": 0.02,
+                "time_ratio": 0.011185682326621925
+            },
+            "feature_analysis": {
+                "common_features": [],
+                "unique_to_ga": [
+                    "smoothness_mean",
+                    "texture_mean",
+                    "concave points_mean",
+                    "perimeter_mean",
+                    "area_se",
+                    "texture_se",
+                    "fractal_dimension_worst"
+                ],
+                "unique_to_traditional": [
+                    "concave points_worst"
+                ],
+                "overlap_percentage": 0.0
+            },
+            "recommendation": "Traditional recommended - better overall feature quality score (-0.20 vs -0.24)"
+        }
+    }
+}

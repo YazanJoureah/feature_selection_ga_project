@@ -16,6 +16,11 @@ class TraditionalFeatureSelector:
         self.variance_threshold = variance_threshold
         np.random.seed(random_state)
     
+    def _should_exclude_feature(self, feature_name):
+        """Exclude irrelevant features like ID columns"""
+        exclude_patterns = ['id', 'ID', 'Id', 'patient', 'sample']
+        return any(pattern in str(feature_name).lower() for pattern in exclude_patterns)
+    
     def _remove_redundant_features(self, X, y, selected_features, max_correlation=0.8):
         """Remove highly correlated features from selection"""
         if len(selected_features) <= 1:
@@ -46,13 +51,16 @@ class TraditionalFeatureSelector:
         """Select features based on correlation with target"""
         correlations = {}
         for feature in X.columns:
-            corr = abs(X[feature].corr(y))
-            if not np.isnan(corr):
-                correlations[feature] = corr
+            if feature != 'id':  
+                corr = abs(X[feature].corr(y))
+                if not np.isnan(corr):
+                    correlations[feature] = corr
         
+   
         # Sort by correlation and select top n
         sorted_features = sorted(correlations.items(), key=lambda x: x[1], reverse=True)
         selected = [feature for feature, score in sorted_features[:n_features]]
+        selected = [f for f in selected if not self._should_exclude_feature(f)]
         
         # Remove redundant features
         return self._remove_redundant_features(X, y, selected)
@@ -62,41 +70,40 @@ class TraditionalFeatureSelector:
         try:
             # First, remove low variance features
             selector = VarianceThreshold(threshold=self.variance_threshold)
-            selector.fit_transform(X)  # Fit and transform, but we don't need the result
+            selector.fit_transform(X)
             selected_features = X.columns[selector.get_support()].tolist()
+            selected_features = [f for f in selected_features if not self._should_exclude_feature(f)]
             
-            logger.info(f"Variance threshold selected {len(selected_features)} features")
+            print(f"Variance threshold selected {len(selected_features)} features")
             
-            # If we have more features than needed, use correlation to select top n
-            if len(selected_features) > n_features:
-                selected_features = self._select_by_correlation(X[selected_features], y, n_features)
-            elif len(selected_features) == 0:
+            if len(selected_features) == 0:
                 # Fallback if no features pass variance threshold
-                logger.warning("No features passed variance threshold, using correlation method")
+                print("No features passed variance threshold, using correlation method")
                 selected_features = self._select_by_correlation(X, y, n_features)
             
             return selected_features
             
         except Exception as e:
-            logger.error(f"Variance selection failed: {e}, using correlation fallback")
+            print(f"Variance selection failed: {e}, using correlation fallback")
             return self._select_by_correlation(X, y, n_features)
     
     def _select_by_kbest(self, X, y, n_features):
         """Select features using SelectKBest"""
         try:
             selector = SelectKBest(score_func=f_classif, k=n_features)
-            selector.fit_transform(X, y)  # Fit and transform, but we don't need the result
+            selector.fit_transform(X, y)  
             selected_features = X.columns[selector.get_support()].tolist()
+            selected_features = [f for f in selected_features if not self._should_exclude_feature(f)]
             
             return selected_features
             
         except Exception as e:
-            logger.error(f"SelectKBest failed: {e}, using correlation fallback")
+            print(f"SelectKBest failed: {e}, using correlation fallback")
             return self._select_by_correlation(X, y, n_features)
     
     def run(self, X, y):
         """Run traditional feature selection with multiple methods"""
-        logger.info(f"Starting Traditional Feature Selection with method: {self.method}")
+        print(f"Starting Traditional Feature Selection with method: {self.method}")
         
         n_features = X.shape[1]
         
@@ -114,8 +121,7 @@ class TraditionalFeatureSelector:
             elif self.method == 'kbest':
                 selected_features = self._select_by_kbest(X, y, self.n_features)
                 
-            else:  # RFE (default)
-                # Use Recursive Feature Elimination
+            else:  # RFE Recursive Feature Elimination (default)
                 estimator = RandomForestClassifier(
                     n_estimators=100,
                     random_state=self.random_state
@@ -134,7 +140,6 @@ class TraditionalFeatureSelector:
                 method=f'Traditional ({self.method.upper()})',
                 selected_features=selected_features,
                 X=X,
-                y=y,
                 additional_params={
                     'n_features': self.n_features,
                     'random_state': self.random_state,
@@ -143,18 +148,17 @@ class TraditionalFeatureSelector:
                 }
             )
             
-            logger.info(f"Traditional Selection Completed! Selected {len(selected_features)} features")
-            logger.info(f"   Method: {self.method}")
+            print(f"Traditional Selection Completed! Selected {len(selected_features)} features")
+            print(f"   Method: {self.method}")
             
             return results
             
         except Exception as e:
-            logger.error(f"Traditional feature selection failed: {e}")
+            print(f"Traditional feature selection failed: {e}")
             # Fallback to correlation method
             selected_features = self._select_by_correlation(X, y, self.n_features)
             return format_selection_results(
                 method='Traditional (Correlation)',
                 selected_features=selected_features,
                 X=X,
-                y=y
             )

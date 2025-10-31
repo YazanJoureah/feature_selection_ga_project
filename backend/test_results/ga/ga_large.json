@@ -1,0 +1,65 @@
+{
+    "success": true,
+    "message": "Feature selection completed successfully using Genetic Algorithm",
+    "method_used": "Genetic Algorithm",
+    "dataset_info": {
+        "samples": 569,
+        "features": 31,
+        "target_column": "diagnosis",
+        "stats": {
+            "samples": 569,
+            "features": 31,
+            "target_distribution": {
+                "1": 357,
+                "0": 212
+            },
+            "missing_values": 0,
+            "feature_types": {
+                "numerical": 31,
+                "categorical": 0
+            },
+            "memory_usage_mb": 0.13,
+            "avg_feature_correlation": 0.4565,
+            "max_feature_correlation": 0.7936
+        }
+    },
+    "results": {
+        "method": "Genetic Algorithm",
+        "selected_features": [
+            "radius_mean",
+            "smoothness_worst"
+        ],
+        "num_features": 2,
+        "feature_reduction": "93.5%",
+        "total_original_features": 31,
+        "feature_quality": {
+            "redundancy_rate": 0.11961613992160802,
+            "representation_entropy": 0.0006708642549107232,
+            "feature_diversity_score": 0.0005906180623269169
+        },
+        "parameters_used": {
+            "population_size": 100,
+            "generations": 100,
+            "crossover_prob": 0.9,
+            "mutation_prob": 0.02,
+            "random_state": 42
+        },
+        "execution_time": 23.84,
+        "dataset_stats": {
+            "samples": 569,
+            "features": 31,
+            "target_distribution": {
+                "1": 357,
+                "0": 212
+            },
+            "missing_values": 0,
+            "feature_types": {
+                "numerical": 31,
+                "categorical": 0
+            },
+            "memory_usage_mb": 0.13,
+            "avg_feature_correlation": 0.4565,
+            "max_feature_correlation": 0.7936
+        }
+    }
+}
