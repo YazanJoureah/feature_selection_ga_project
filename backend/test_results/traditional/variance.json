@@ -1,0 +1,76 @@
+{
+    "success": true,
+    "message": "Feature selection completed successfully using Traditional (VARIANCE)",
+    "method_used": "Traditional (VARIANCE)",
+    "dataset_info": {
+        "samples": 569,
+        "features": 31,
+        "target_column": "diagnosis",
+        "stats": {
+            "samples": 569,
+            "features": 31,
+            "target_distribution": {
+                "1": 357,
+                "0": 212
+            },
+            "missing_values": 0,
+            "feature_types": {
+                "numerical": 31,
+                "categorical": 0
+            },
+            "memory_usage_mb": 0.13,
+            "avg_feature_correlation": 0.4565,
+            "max_feature_correlation": 0.7936
+        }
+    },
+    "results": {
+        "method": "Traditional (VARIANCE)",
+        "selected_features": [
+            "radius_mean",
+            "texture_mean",
+            "perimeter_mean",
+            "area_mean",
+            "radius_se",
+            "texture_se",
+            "perimeter_se",
+            "area_se",
+            "radius_worst",
+            "texture_worst",
+            "perimeter_worst",
+            "area_worst",
+            "compactness_worst",
+            "concavity_worst"
+        ],
+        "num_features": 14,
+        "feature_reduction": "54.8%",
+        "total_original_features": 31,
+        "feature_quality": {
+            "redundancy_rate": 0.541436739763553,
+            "representation_entropy": 0.2438266557594009,
+            "feature_diversity_score": 0.11180994619758074
+        },
+        "parameters_used": {
+            "n_features": 10,
+            "random_state": 42,
+            "method": "variance",
+            "variance_threshold": 0.01
+        },
+        "execution_time": 0.03,
+        "dataset_stats": {
+            "samples": 569,
+            "features": 31,
+            "target_distribution": {
+                "1": 357,
+                "0": 212
+            },
+            "missing_values": 0,
+            "feature_types": {
+                "numerical": 31,
+                "categorical": 0
+            },
+            "memory_usage_mb": 0.13,
+            "avg_feature_correlation": 0.4565,
+            "max_feature_correlation": 0.7936
+        }
+    }
+}

@@ -3,7 +3,7 @@ import pandas as pd
 import logging
 import random
 from app.utils.fitness import calculate_fitness
-from app.utils.results_formatter import format_selection_results  # ADD THIS IMPORT
+from app.utils.results_formatter import format_selection_results 
 
 logger = logging.getLogger(__name__)
 
@@ -139,7 +139,7 @@ class GeneticFeatureSelector:
     
     def run(self, X, y):
         n_features = X.shape[1]
-        logger.info("Starting Genetic Algorithm Evolution...")
+        print("Starting Genetic Algorithm Evolution...")
         
         population = self._initialize_population(n_features)
         best_individual, best_fitness = None, 0.0
@@ -157,7 +157,7 @@ class GeneticFeatureSelector:
             population = self._create_offspring(selected)
             
             if generation % 10 == 0:
-                logger.info(f"Generation {generation}: Best Fitness = {best_fitness:.4f}")
+                print(f"Generation {generation}: Best Fitness = {best_fitness:.4f}")
         
         # Final feature selection
         if best_individual is None:
@@ -176,7 +176,7 @@ class GeneticFeatureSelector:
             method='Genetic Algorithm',
             selected_features=selected_features,
             X=X,
-            y=y,
+            
             additional_params={
                 'population_size': self.population_size,
                 'generations': self.generations,
@@ -186,7 +186,6 @@ class GeneticFeatureSelector:
             }
         )
         
-        logger.info(f"GA Completed! Selected {len(selected_features)} features")
-        # Remove fitness logging since it's not in the results anymore
+        print(f"GA Completed! Selected {len(selected_features)} features")
         
         return results
