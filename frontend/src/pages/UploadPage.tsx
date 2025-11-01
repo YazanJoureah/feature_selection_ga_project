@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import FileUploadForm from '@/components/FileUploadForm';
 import ResultsTable from '@/components/ResultsTable';
+import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { runFeatureSelection } from '@/api/api';
@@ -28,7 +29,7 @@ const UploadPage: React.FC = () => {
   const [parsedFile, setParsedFile] = useState<{ file: File; fields: string[] } | null>(null);
   const [targetColumn, setTargetColumn] = useState<string>('');
   const [method, setMethod] = useState<MethodType>('both');
-  const [result, setResult] = useState<ComparisonResult | null>(null);
+  const navigate = useNavigate();
 
   // GA options
   const [populationSize, setPopulationSize] = useState(30);
@@ -64,7 +65,8 @@ const UploadPage: React.FC = () => {
 
     try {
       const res = await runFeatureSelection(formData);
-      setResult(res);
+      // navigate to Results page and pass the result via location state
+      navigate('/results', { state: { result: res } });
     } catch (e) {
       console.error(e);
       alert('Error running feature selection');
@@ -148,15 +150,7 @@ const UploadPage: React.FC = () => {
           </Card>
         </section>
 
-        <section className="upload-results">
-          <Card className="p-6 results-card">
-            <h3 className="section-title">Results</h3>
-            {!result && <p className="muted">No results yet.</p>}
-
-            {result?.ga && <ResultsTable title="GA Selected Features" features={result.ga.selected} />}
-            {result?.traditional && <ResultsTable title="Traditional Selected Features" features={result.traditional.selected} />}
-          </Card>
-        </section>
+        {/* Results are shown on the ResultsPage. After running, we navigate there. */}
       </div>
     </div>
   );
