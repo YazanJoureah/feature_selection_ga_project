@@ -1,0 +1,63 @@
+{
+    "success": true,
+    "message": "Feature selection completed successfully using Traditional (CORRELATION)",
+    "method_used": "Traditional (CORRELATION)",
+    "dataset_info": {
+        "samples": 569,
+        "features": 31,
+        "target_column": "diagnosis",
+        "stats": {
+            "samples": 569,
+            "features": 31,
+            "target_distribution": {
+                "1": 357,
+                "0": 212
+            },
+            "missing_values": 0,
+            "feature_types": {
+                "numerical": 31,
+                "categorical": 0
+            },
+            "memory_usage_mb": 0.13,
+            "avg_feature_correlation": 0.4565,
+            "max_feature_correlation": 0.7936
+        }
+    },
+    "results": {
+        "method": "Traditional (CORRELATION)",
+        "selected_features": [
+            "concave points_worst"
+        ],
+        "num_features": 1,
+        "feature_reduction": "96.8%",
+        "total_original_features": 31,
+        "feature_quality": {
+            "redundancy_rate": 0.0,
+            "representation_entropy": 0.0,
+            "feature_diversity_score": 0.0
+        },
+        "parameters_used": {
+            "n_features": 10,
+            "random_state": 42,
+            "method": "correlation",
+            "variance_threshold": null
+        },
+        "execution_time": 0.02,
+        "dataset_stats": {
+            "samples": 569,
+            "features": 31,
+            "target_distribution": {
+                "1": 357,
+                "0": 212
+            },
+            "missing_values": 0,
+            "feature_types": {
+                "numerical": 31,
+                "categorical": 0
+            },
+            "memory_usage_mb": 0.13,
+            "avg_feature_correlation": 0.4565,
+            "max_feature_correlation": 0.7936
+        }
+    }
+}

@@ -1,0 +1,70 @@
+{
+    "success": true,
+    "message": "Feature selection completed successfully using Genetic Algorithm",
+    "method_used": "Genetic Algorithm",
+    "dataset_info": {
+        "samples": 569,
+        "features": 31,
+        "target_column": "diagnosis",
+        "stats": {
+            "samples": 569,
+            "features": 31,
+            "target_distribution": {
+                "1": 357,
+                "0": 212
+            },
+            "missing_values": 0,
+            "feature_types": {
+                "numerical": 31,
+                "categorical": 0
+            },
+            "memory_usage_mb": 0.13,
+            "avg_feature_correlation": 0.4565,
+            "max_feature_correlation": 0.7936
+        }
+    },
+    "results": {
+        "method": "Genetic Algorithm",
+        "selected_features": [
+            "texture_mean",
+            "perimeter_mean",
+            "perimeter_se",
+            "fractal_dimension_se",
+            "texture_worst",
+            "smoothness_worst",
+            "symmetry_worst"
+        ],
+        "num_features": 7,
+        "feature_reduction": "77.4%",
+        "total_original_features": 31,
+        "feature_quality": {
+            "redundancy_rate": 0.23920150517720756,
+            "representation_entropy": 0.1987139553539982,
+            "feature_diversity_score": 0.15118127813360538
+        },
+        "parameters_used": {
+            "population_size": 50,
+            "generations": 50,
+            "crossover_prob": 0.8,
+            "mutation_prob": 0.05,
+            "random_state": 42
+        },
+        "execution_time": 8.26,
+        "dataset_stats": {
+            "samples": 569,
+            "features": 31,
+            "target_distribution": {
+                "1": 357,
+                "0": 212
+            },
+            "missing_values": 0,
+            "feature_types": {
+                "numerical": 31,
+                "categorical": 0
+            },
+            "memory_usage_mb": 0.13,
+            "avg_feature_correlation": 0.4565,
+            "max_feature_correlation": 0.7936
+        }
+    }
+}

@@ -1,0 +1,72 @@
+{
+    "success": true,
+    "message": "Feature selection completed successfully using Traditional (KBEST)",
+    "method_used": "Traditional (KBEST)",
+    "dataset_info": {
+        "samples": 569,
+        "features": 31,
+        "target_column": "diagnosis",
+        "stats": {
+            "samples": 569,
+            "features": 31,
+            "target_distribution": {
+                "1": 357,
+                "0": 212
+            },
+            "missing_values": 0,
+            "feature_types": {
+                "numerical": 31,
+                "categorical": 0
+            },
+            "memory_usage_mb": 0.13,
+            "avg_feature_correlation": 0.4565,
+            "max_feature_correlation": 0.7936
+        }
+    },
+    "results": {
+        "method": "Traditional (KBEST)",
+        "selected_features": [
+            "radius_mean",
+            "perimeter_mean",
+            "area_mean",
+            "concavity_mean",
+            "concave points_mean",
+            "radius_worst",
+            "perimeter_worst",
+            "area_worst",
+            "concavity_worst",
+            "concave points_worst"
+        ],
+        "num_features": 10,
+        "feature_reduction": "67.7%",
+        "total_original_features": 31,
+        "feature_quality": {
+            "redundancy_rate": 0.8187349536343154,
+            "representation_entropy": 0.2673908676636183,
+            "feature_diversity_score": 0.04846861802480642
+        },
+        "parameters_used": {
+            "n_features": 10,
+            "random_state": 42,
+            "method": "kbest",
+            "variance_threshold": null
+        },
+        "execution_time": 0.05,
+        "dataset_stats": {
+            "samples": 569,
+            "features": 31,
+            "target_distribution": {
+                "1": 357,
+                "0": 212
+            },
+            "missing_values": 0,
+            "feature_types": {
+                "numerical": 31,
+                "categorical": 0
+            },
+            "memory_usage_mb": 0.13,
+            "avg_feature_correlation": 0.4565,
+            "max_feature_correlation": 0.7936
+        }
+    }
+}
