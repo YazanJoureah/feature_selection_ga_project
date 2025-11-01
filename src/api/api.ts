@@ -1,15 +1,14 @@
 import axios from 'axios';
 
-// Use Vite env variable VITE_API_BASE_URL when available, otherwise fallback to the hosted URL.
-// Set VITE_API_BASE_URL in a .env or .env.local file at the project root during development.
-const FALLBACK_BASE = 'https://feature-selection-ga-project.onrender.com/api';
-const BASE_URL = (import.meta.env.VITE_API_BASE_URL as string) || FALLBACK_BASE;
+const BASE_URL = 'https://feature-selection-ga-project.onrender.com/api';
 
 export const runFeatureSelection = async (formData: FormData) => {
+  console.log("Running feature selection with form data ...");
   try {
     const res = await axios.post(`${BASE_URL}/feature-selection`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
+    console.log("Feature selection completed successfully");
     return res.data;
   } catch (err) {
     // normalize axios error for callers
