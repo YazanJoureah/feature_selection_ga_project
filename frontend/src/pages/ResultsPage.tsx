@@ -3,11 +3,19 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Link, useLocation } from 'react-router-dom';
 import ResultsTable from '@/components/ResultsTable';
+import StatsTable from '@/components/StatsTable';
 
 // Local types for the result object passed from UploadPage
+type FeatureStats = {
+  redundancy: string;
+  entropy: string;
+  diversity: string;
+  score: string;
+};
+
 type FeatureResult = {
   selected: string[];
-  stats?: Record<string, any>;
+  stats?: FeatureStats;
 };
 
 type ComparisonResult = {
@@ -30,16 +38,38 @@ const ResultsPage: React.FC = () => {
         )}
 
         {result?.ga && (
-          <div>
-            <h4 className="font-medium">GA Selected Features</h4>
-            <ResultsTable title="GA Selected Features" features={result.ga.selected} />
+          <div className="mb-8">
+            <h4 className="font-medium text-lg mb-4">Genetic Algorithm Results</h4>
+            <div className="space-y-6">
+              <div>
+                <h5 className="font-medium mb-2">Selected Features</h5>
+                <ResultsTable title="GA Selected Features" features={result.ga.selected} />
+              </div>
+              {result.ga.stats && (
+                <div>
+                  <h5 className="font-medium mb-2">Performance Metrics</h5>
+                  <StatsTable stats={result.ga.stats} />
+                </div>
+              )}
+            </div>
           </div>
         )}
 
         {result?.traditional && (
-          <div>
-            <h4 className="font-medium">Traditional Selected Features</h4>
-            <ResultsTable title="Traditional Selected Features" features={result.traditional.selected} />
+          <div className="mb-8">
+            <h4 className="font-medium text-lg mb-4">Traditional Method Results</h4>
+            <div className="space-y-6">
+              <div>
+                <h5 className="font-medium mb-2">Selected Features</h5>
+                <ResultsTable title="Traditional Selected Features" features={result.traditional.selected} />
+              </div>
+              {result.traditional.stats && (
+                <div>
+                  <h5 className="font-medium mb-2">Performance Metrics</h5>
+                  <StatsTable stats={result.traditional.stats} />
+                </div>
+              )}
+            </div>
           </div>
         )}
 
