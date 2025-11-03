@@ -174,7 +174,7 @@ const HomePage = () => {
     try {
       const submitData = new FormData();
       submitData.append("file", formData.file);
-      submitData.append("target_column", formData.targetColumn);
+      submitData.append("target_column", "diagnosis");
 
       let response;
 
@@ -302,8 +302,13 @@ const HomePage = () => {
             <fieldset disabled={isSubmitting}>
               <div className="form-group">
                 <label>Target Column:</label>
-                <select name="targetColumn" value="diagnosis" required>
-                  <option>diagnosis</option>
+                <select
+                  name="targetColumn"
+                  value={formData.targetColumn}
+                  onChange={handleInputChange}
+                  required
+                >
+                  <option value="diagnosis">diagnosis</option>
                 </select>
               </div>
 
